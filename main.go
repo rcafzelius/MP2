@@ -10,20 +10,17 @@ import (
 
 type Block struct {
 	name, hash, solution int
+	prev *Block
 }
 
-type Chain struct {
-	current Block
-	last Block
-}
 
 type Node struct {
 	//Could store blocks in a map or in a linked list -
 	name int
-	chain Chain
+	current Block
 }
 
-var logToNode map[int]chan Chain
+var logToNode map[int]chan Block
 var nodeToLog chan Block
 
 //Checks validity of block
