@@ -12,14 +12,19 @@ type Block struct {
 	name, hash, solution int
 }
 
-type Node struct {
-	//Could store blocks in a map or in a linked list --
-	blocks map[int]Block
+type Chain struct {
+	current Block
+	last Block
 }
 
-var logToNode map[int]chan Node
-var nodeToLog chan int
+type Node struct {
+	//Could store blocks in a map or in a linked list -
+	name int
+	chain Chain
+}
 
+var logToNode map[int]chan Chain
+var nodeToLog chan Block
 
 //Checks validity of block
 func logger(){
