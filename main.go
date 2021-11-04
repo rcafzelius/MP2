@@ -12,19 +12,23 @@ type Block struct {
 	name, hash, solution int
 	prev *Block
 }
-
-
 type Node struct {
 	//Could store blocks in a map or in a linked list -
-	name int
+	name    int
+	current Block
+}
+
+type log struct {
+	nodes []Node
 	current Block
 }
 
 var logToNode map[int]chan Block
 var nodeToLog chan Block
+var logger log
 
 //Checks validity of block
-func logger(){
+func checkValid(){
 
 }
 
@@ -47,7 +51,15 @@ func solver(){
 func mine() {
 	for
 }
+func init(){
+	numMiners := 4
+	initBlock := Block{0,0,0, nil}
+	logger.current = initBlock
+	for i := 0; i < numMiners; i++{
+		logger.nodes = append(logger.nodes, Node{i,initBlock})
+	}
+}
 
 func main() {
-
+	init()
 }
