@@ -1,16 +1,16 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
-	"math/rand"
-	"sync"
-	"sync/atomic"
-	"time"
+	"strconv"
+	"strings"
 )
 
 type Block struct {
-	name, hash, solution int
-	prev *Block
+	name, hash, nonce int
+	prev              *Block
 }
 type Node struct {
 	//Could store blocks in a map or in a linked list -
@@ -19,7 +19,7 @@ type Node struct {
 }
 
 type log struct {
-	nodes []Node
+	nodes   []Node
 	current Block
 }
 
@@ -28,8 +28,16 @@ var nodeToLog chan Block
 var logger log
 
 //Checks validity of block
-func checkValid(){
-
+func checkValid(b Block, difficulty int) bool {
+	sum := sha256.New()
+	sum.Write([]byte(strconv.Itoa(b.name) + strconv.Itoa(b.hash) + strconv.Itoa(b.nonce)))
+	sha1Hash := hex.EncodeToString(sum.Sum(nil))
+	fmt.Println(sha1Hash)
+	prefix := strings.Repeat("0", difficulty)
+	if strings.HasPrefix(sha1Hash, prefix) {
+		return true
+	}
+	return false
 }
 
 //Updates nodes when a new valid block is added
@@ -43,23 +51,24 @@ func checkStatus() {
 }
 
 //Take in Node and channel to send a solution
-func solver(){
+func solver() {
 
 }
 
 //Run Go Routines to have nodes run a mining function "solver" at the same time
 func mine() {
-	for
+	//for
 }
-func init(){
+
+func init() {
 	numMiners := 4
-	initBlock := Block{0,0,0, nil}
+	initBlock := Block{0, 0, 0, nil}
 	logger.current = initBlock
-	for i := 0; i < numMiners; i++{
-		logger.nodes = append(logger.nodes, Node{i,initBlock})
+	for i := 0; i < numMiners; i++ {
+		logger.nodes = append(logger.nodes, Node{i, initBlock})
 	}
 }
 
 func main() {
-	init()
+	checkValid(logger.current, 2)
 }
