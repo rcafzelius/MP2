@@ -10,7 +10,8 @@ import (
 
 type Block struct {
 	name, hash, nonce int
-	prev              *Block
+	//add single transaction as map: {source: location coin came from, b1: balance of sender, b2: balance of receiver}
+	prev *Block
 }
 type Node struct {
 	//Could store blocks in a map or in a linked list -
@@ -40,24 +41,46 @@ func checkValid(b Block, difficulty int) bool {
 	return false
 }
 
+func (*Node) mine() {
+	//assemble first try
+	//create transaction
+	//Block tmp
+	//while checkValid(block) is false:
+	//		if tmp.current != Node.current: return //terminate mining step if someone else mines the block first
+	//		assemble new block with random nonce
+	//		new block has previous = current, nonce= randomly generated, hash = ?, name = node.name
+
+	//pass valid block through channel to leader
+}
+
+func (*Node) listen() {
+	//while loop listens to channel
+	//update current block in struct
+	/*
+		x, err <- channel
+		err = nil
+		for {
+			x, err <- channel
+			if err != nil{
+				continue
+			}
+		}
+	*/
+}
+
+func protocol() {
+	//node n1
+	for i := 0; i < 5; i++ {
+		//	go n1.mine()
+		//	go n1.listen()
+	}
+}
+
+//
+
 //Updates nodes when a new valid block is added
 func updateNodes() {
 
-}
-
-//checkStatus after each iteration in solver check for an update of chain
-func checkStatus() {
-
-}
-
-//Take in Node and channel to send a solution
-func solver() {
-
-}
-
-//Run Go Routines to have nodes run a mining function "solver" at the same time
-func mine() {
-	//for
 }
 
 func init() {
