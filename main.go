@@ -4,12 +4,16 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"math/rand"
 	"strconv"
 	"strings"
 )
 
+const MaxInt = int(^uint(0) >> 1)
+
 type Block struct {
-	name, hash, nonce int
+	name, nonce int
+	hash        string
 	//add single transaction as map: {source: location coin came from, b1: balance of sender, b2: balance of receiver}
 	prev *Block
 }
@@ -31,7 +35,7 @@ var logger log
 //Checks validity of block
 func checkValid(b Block, difficulty int) bool {
 	sum := sha256.New()
-	sum.Write([]byte(strconv.Itoa(b.name) + strconv.Itoa(b.hash) + strconv.Itoa(b.nonce)))
+	sum.Write([]byte(strconv.Itoa(b.name) + b.hash + strconv.Itoa(b.nonce)))
 	sha1Hash := hex.EncodeToString(sum.Sum(nil))
 	fmt.Println(sha1Hash)
 	prefix := strings.Repeat("0", difficulty)
@@ -41,19 +45,28 @@ func checkValid(b Block, difficulty int) bool {
 	return false
 }
 
-func (*Node) mine() {
-	//assemble first try
-	//create transaction
-	//Block tmp
-	//while checkValid(block) is false:
-	//		if tmp.current != Node.current: return //terminate mining step if someone else mines the block first
-	//		assemble new block with random nonce
-	//		new block has previous = current, nonce= randomly generated, hash = ?, name = node.name
+func (n *Node) mine(difficulty int) {
+	oldHead := n.current
+	transaction := fmt.Sprintf("%d=10", n.name)
+	sum := sha256.New()
+	sum.Write([]byte(transaction))
+	hashTransaction := hex.EncodeToString(sum.Sum(nil))
+	nonce := 1
+	newBlock := Block{n.current.name + 1, nonce, hashTransaction, &oldHead}
+	for {
+		if checkValid(newBlock, difficulty) == true {
+			break
+		} else if oldHead != n.current {
+			return
+		}
+		nonce = rand.Intn(MaxInt)
+		newBlock.nonce = nonce
+	}
 
-	//pass valid block through channel to leader
+	//TODO: pass valid block through channel to leader
 }
 
-func (*Node) listen() {
+func (n *Node) listen() {
 	//while loop listens to channel
 	//update current block in struct
 	/*
@@ -85,7 +98,7 @@ func updateNodes() {
 
 func init() {
 	numMiners := 4
-	initBlock := Block{0, 0, 0, nil}
+	initBlock := Block{0, 0, "", nil}
 	logger.current = initBlock
 	for i := 0; i < numMiners; i++ {
 		logger.nodes = append(logger.nodes, Node{i, initBlock})
