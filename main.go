@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 )
 
 const MaxInt = int(^uint(0) >> 1)
@@ -62,23 +64,22 @@ func (n *Node) mine(difficulty int) {
 		nonce = rand.Intn(MaxInt)
 		newBlock.nonce = nonce
 	}
-
 	//TODO: pass valid block through channel to leader
+	nodeToLog <- newBlock
 }
 
 func (n *Node) listen() {
 	//while loop listens to channel
 	//update current block in struct
-	/*
-		x, err <- channel
-		err = nil
-		for {
-			x, err <- channel
-			if err != nil{
-				continue
-			}
+	nodeToLog.mu.Lock()
+	select {
+	case checkBlock := <- nodeToLog:
+		if ok {
+
 		}
-	*/
+	default:
+		break //handles case where channel is empty
+	}
 }
 
 func protocol() {
