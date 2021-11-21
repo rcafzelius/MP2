@@ -19,6 +19,7 @@ type Block struct {
 	//add single transaction as map: {source: location coin came from, b1: balance of sender, b2: balance of receiver}
 	prev *Block
 }
+//Node: "Miners"
 type Node struct {
 	//Could store blocks in a map or in a linked list -
 	name    int
@@ -26,8 +27,8 @@ type Node struct {
 }
 
 type log struct {
-	nodes   []Node
-	current Block
+	nodes []Node
+	lastValid Block
 }
 
 var logToNode map[int]chan Block
@@ -68,14 +69,23 @@ func (n *Node) mine(difficulty int) {
 	nodeToLog <- newBlock
 }
 
-func (n *Node) listen() {
+//Simulate a node "A" checking validity of block again.
+func loggerCheck(difficulty int, newBlock Block) bool{
+
+	return true
+}
+
+func (n *Node) listen(difficulty int) {
 	//while loop listens to channel
 	//update current block in struct
-	nodeToLog.mu.Lock()
-	select {
-	case checkBlock := <- nodeToLog:
-		if ok {
 
+	select {
+	case newBlock, ok := <- nodeToLog:
+		if ok {
+			if loggerCheck(difficulty, newBlock) {
+				updateNodes(newBlock)
+			}
+			break
 		}
 	default:
 		break //handles case where channel is empty
@@ -84,23 +94,29 @@ func (n *Node) listen() {
 
 func protocol() {
 	//node n1
-	for i := 0; i < 5; i++ {
-		//	go n1.mine()
-		//	go n1.listen()
+	for i := range logger.nodes {
+		//	go logger.nodes[i].mine()
+		//	go logger.nodes[i].listen()
 	}
 }
 
 //
 
 //Updates nodes when a new valid block is added
-func updateNodes() {
+func updateNodes( newBlock Block) bool{
+	logger.lastValid = newBlock
+	for i := range logger.nodes {
+		logToNode[i] <- newBlock
+		logger.nodes[i].current = <-logToNode[i]
+	}
 
+	//If success return true
 }
 
 func init() {
 	numMiners := 4
 	initBlock := Block{0, 0, "", nil}
-	logger.current = initBlock
+	logger.lastValid = initBlock
 	for i := 0; i < numMiners; i++ {
 		logger.nodes = append(logger.nodes, Node{i, initBlock})
 	}
