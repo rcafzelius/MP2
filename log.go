@@ -19,7 +19,6 @@ func loggerCheck(difficulty int, newBlock Block) bool {
 func (l *Log) updateNodes(newBlock Block) {
 	l.lastValid = newBlock
 	for k := range l.nodes {
-		print(l.lastValid.name)
 		l.nodes[k].logToNode <- l.lastValid
 	}
 }

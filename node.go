@@ -28,7 +28,7 @@ L:
 		if checkValid(newBlock, difficulty) {
 			nodeToLog <- newBlock
 			break L
-		//Breaks the mining loop if n.current ever changes.
+			//Breaks the mining loop if n.current ever changes.
 		} else if oldHead != n.current {
 			break L
 		}
@@ -48,7 +48,9 @@ L:
 		select {
 		case newBlock, ok := <-n.logToNode:
 			if ok {
-				n.current = newBlock
+				if n.current != newBlock {
+					n.current = newBlock
+				}
 				break L
 			}
 		default:

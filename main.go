@@ -25,6 +25,7 @@ type Block struct {
 var logger Log
 var difficulty int
 var numMiners int
+
 //Channel for sending Blocks from miners to the logger
 var nodeToLog chan Block
 
