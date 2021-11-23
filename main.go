@@ -82,6 +82,5 @@ func runRounds(rounds int) {
 }
 
 func main() {
-	//protocol()
 	runRounds(3)
 }

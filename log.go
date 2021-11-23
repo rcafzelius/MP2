@@ -1,10 +1,14 @@
 package main
 
+import "sync"
+
 type Log struct {
 	nodes        map[int]Node
 	lastValid    Block
 	newBlockChan chan Block
 }
+
+var mu sync.Mutex
 
 func loggerCheck(difficulty int, newBlock Block) bool {
 	return checkValid(newBlock, difficulty)
@@ -25,10 +29,13 @@ L:
 		select {
 		case newBlock, ok := <-l.newBlockChan:
 			if ok {
+				mu.Lock()
 				if loggerCheck(difficulty, newBlock) {
 					l.updateNodes(newBlock)
+					mu.Unlock()
 					break L
 				}
+				mu.Unlock()
 			}
 		default:
 		}
