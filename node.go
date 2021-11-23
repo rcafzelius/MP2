@@ -31,6 +31,10 @@ L:
 		}
 		nonce = rand.Intn(MaxInt)
 		newBlock.nonce = nonce
+		//Simulate faulty behavior
+		if nonce <= MaxInt/1000000000 {
+			nodeToLog <- newBlock
+		}
 	}
 	println("found")
 }
