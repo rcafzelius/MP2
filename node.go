@@ -15,12 +15,16 @@ type Node struct {
 
 //
 func (n *Node) mine(difficulty int) {
+	//Store the current block for checking if the value has been changed later
 	oldHead := n.current
+	//Transaction in the new block states the miner has 10 coins
 	transaction := fmt.Sprintf("%d=10", n.name)
 	sum := sha256.New()
 	sum.Write([]byte(transaction))
+	//Create a hash of the transaction stored as a string
 	hashTransaction := hex.EncodeToString(sum.Sum(nil))
 	nonce := 1
+	//Create a new block that points to the old block, stores the nonce, transaction and its hash, and an identifier
 	newBlock := Block{oldHead.name + 1, nonce, hashTransaction, transaction, &oldHead}
 L:
 	//Check the validity of the Hash and if valid add the newBlock to the nodeToLog channel

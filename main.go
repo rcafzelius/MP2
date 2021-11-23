@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -41,13 +42,16 @@ func checkValid(b Block, difficulty int) bool {
 	return false
 }
 
+//Runs necessary functions to create and distribute a single block
 func protocol() {
 	var wg sync.WaitGroup
 	wg.Add(1)
+	//start the listening function for the logger
 	go func() {
 		defer wg.Done()
 		logger.checkForBlock()
 	}()
+	//for each node, start the mining and listening functions
 	for i := 0; i < numMiners; i++ {
 		n := logger.nodes[i]
 		wg.Add(1)
@@ -63,7 +67,20 @@ func protocol() {
 	}
 	wg.Wait()
 	logger.clearChannel()
-	fmt.Println("One round done")
+	fmt.Println(logger.lastValid.name, "block(s) added")
+}
+
+//runRounds: Runs protocol for a certain amount of rounds and keeps track of timing of each run
+func runRounds(rounds int) map[int]string {
+	//Time map to keep track of timing each round
+	times := make(map[int]string)
+	for i := 0; i < rounds; i++ {
+		start := time.Now()
+		protocol()
+		end := time.Since(start)
+		times[i] = fmt.Sprintf("%f", end.Seconds())
+	}
+	return times
 }
 
 //init: Initializing Logger and miner nodes.
@@ -82,32 +99,11 @@ func init() {
 	}
 }
 
-//runRounds: Runs protocol for a certain amount of rounds and keeps track of timing of each run
-func runRounds(rounds int) map[int]string {
-	//Time map to keep track of timing each round
-	times := make(map[int]string)
-	for i := 0; i < rounds; i++ {
-		start := time.Now()
-		protocol()
-		end := time.Since(start)
-		times[i] = fmt.Sprintf("%f", end.Seconds())
-	}
-	return times
-}
-
 func main() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
 	t := runRounds(3)
 	//Print time per round
 	for k := range t {
 		println(t[k])
-	}
-	a := Block{}
-	b := logger.lastValid
-	for {
-		print(b.name)
-		b = *b.prev
-		if b == a {
-			break
-		}
 	}
 }
