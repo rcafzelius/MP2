@@ -10,6 +10,7 @@ type Log struct {
 
 var mu sync.Mutex
 
+//Check validity of newBlock hash
 func loggerCheck(difficulty int, newBlock Block) bool {
 	return checkValid(newBlock, difficulty)
 }
@@ -23,7 +24,7 @@ func (l *Log) updateNodes(newBlock Block) {
 	}
 }
 
-//
+//Check the nodeToLog channel and call updateNodes if newBlock's hash is valid
 func (l *Log) checkForBlock() {
 L:
 	for {
@@ -36,21 +37,20 @@ L:
 					mu.Unlock()
 					break L
 				}
+				//Unlocks nodeToLog channel
 				mu.Unlock()
 			}
 		default:
 		}
 	}
-	println("sent")
 }
 
+//Clears the nodeToLog channel
 func (l *Log) clearChannel() {
 	for i := 0; i < numMiners; i++ { //since we will set all nodes' channels to 0's, only need to clear 0's channels
 		select {
 		case _, ok := <-l.newBlockChan:
 			if ok {
-				//fmt.Println("Clearing Channel")
-				println("cleaning")
 			}
 		default:
 			break //handles case where channel is empty

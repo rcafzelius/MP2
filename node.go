@@ -13,6 +13,7 @@ type Node struct {
 	logToNode chan Block
 }
 
+//
 func (n *Node) mine(difficulty int) {
 	oldHead := n.current
 	transaction := fmt.Sprintf("%d=10", n.name)
@@ -22,27 +23,26 @@ func (n *Node) mine(difficulty int) {
 	nonce := 1
 	newBlock := Block{oldHead.name + 1, nonce, hashTransaction, transaction, &oldHead}
 L:
+	//Check the validity of the Hash and if valid add the newBlock to the nodeToLog channel
 	for {
 		if checkValid(newBlock, difficulty) {
 			nodeToLog <- newBlock
 			break L
+		//Breaks the mining loop if n.current ever changes.
 		} else if oldHead != n.current {
 			break L
 		}
 		nonce = rand.Intn(MaxInt)
 		newBlock.nonce = nonce
-		//Simulate faulty behavior
+		//Simulate faulty behavior by sending a probabilistically incorrect block hash into the nodeToLog channel
 		if nonce <= MaxInt/1000000000 {
 			nodeToLog <- newBlock
 		}
 	}
-	//println("found")
 }
 
+//Check the logToNode channel and update the node current to newBlock
 func (n *Node) listen() {
-	//while loop listens to channel
-	//update current block in struct
-	println(n.current.name)
 L:
 	for {
 		select {
@@ -54,5 +54,4 @@ L:
 		default:
 		}
 	}
-	//println("heard")
 }
