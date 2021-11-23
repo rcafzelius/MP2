@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 const MaxInt = int(^uint(0) >> 1)
@@ -76,12 +77,15 @@ func init() {
 	}
 }
 
-func runRounds(rounds int) {
+func runRounds(rounds int) map[int]string {
+	times := make(map[int]string)
 	for i := 0; i < rounds; i++ {
-		v := logger.nodes[0].current
-		print(v.name)
+		start := time.Now()
 		protocol()
+		end := time.Since(start)
+		times[i] = fmt.Sprintf("%f", end.Seconds())
 	}
+	return times
 }
 
 func main() {
@@ -95,5 +99,4 @@ func main() {
 			break
 		}
 	}
-
 }
