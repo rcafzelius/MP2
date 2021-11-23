@@ -12,6 +12,7 @@ import (
 
 const MaxInt = int(^uint(0) >> 1)
 
+//Block: Structure for holding Block information
 type Block struct {
 	name, nonce int
 	hash        string
@@ -24,9 +25,10 @@ type Block struct {
 var logger Log
 var difficulty int
 var numMiners int
+//Channel for sending Blocks from miners to the logger
 var nodeToLog chan Block
 
-//Checks validity of block
+//Checks validity of the hash in block b for a certain difficulty
 func checkValid(b Block, difficulty int) bool {
 	sum := sha256.New()
 	sum.Write([]byte(strconv.Itoa(b.name) + b.hash + strconv.Itoa(b.nonce)))
@@ -63,6 +65,7 @@ func protocol() {
 	fmt.Println("One round done")
 }
 
+//init: Initializing Logger and miner nodes.
 func init() {
 	numMiners = 4
 	difficulty = 5
@@ -71,13 +74,16 @@ func init() {
 	logger.nodes = make(map[int]*Node)
 	logger.lastValid = initBlock
 	logger.newBlockChan = nodeToLog
+	//Inits nodes in the logger
 	for i := 0; i < numMiners; i++ {
 		logToNode := make(chan Block)
 		logger.nodes[i] = &Node{i, initBlock, logToNode}
 	}
 }
 
+//runRounds: Runs protocol for a certain amount of rounds and keeps track of timing of each run
 func runRounds(rounds int) map[int]string {
+	//Time map to keep track of timing each round
 	times := make(map[int]string)
 	for i := 0; i < rounds; i++ {
 		start := time.Now()
@@ -89,7 +95,11 @@ func runRounds(rounds int) map[int]string {
 }
 
 func main() {
-	runRounds(3)
+	t := runRounds(3)
+	//Print time per round
+	for k := range t {
+		println(t[k])
+	}
 	a := Block{}
 	b := logger.lastValid
 	for {
