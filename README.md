@@ -8,8 +8,7 @@ Simulates a blockchain through the use of a lead node and mining nodes that comm
 * runRounds(rounds) takes an integer representing how many blocks will be created, in main()
 * runtime.GOMAXPROCS(i) takes an integer representing the number of operating systems threads that can be used, in main()
 2. Enter `go run .`.
-3. By default, five blocks are created on the chain, and the function outputs how long each block took to create, as well as
-the average time for the block to be created.
+3. By default, five blocks are created on the chain, and the function outputs how long each block took to create.
 
 ## Design
 ### Main
