@@ -47,17 +47,18 @@ func protocol() {
 	for i := 0; i < numMiners; i++ {
 		n := logger.nodes[i]
 		wg.Add(1)
-		go func() {
+		go func(i int) {
 			defer wg.Done()
 			n.mine(difficulty)
-		}()
+		}(i)
 		wg.Add(1)
-		go func() {
+		go func(i int) {
 			defer wg.Done()
 			n.listen()
-		}()
+		}(i)
 	}
 	wg.Wait()
+	logger.clearChannel()
 	fmt.Println("One round done")
 }
 
@@ -66,21 +67,33 @@ func init() {
 	difficulty = 5
 	nodeToLog = make(chan Block, numMiners)
 	initBlock := Block{0, 0, "", "", nil}
-	logger.nodes = make(map[int]Node)
+	logger.nodes = make(map[int]*Node)
 	logger.lastValid = initBlock
 	logger.newBlockChan = nodeToLog
 	for i := 0; i < numMiners; i++ {
 		logToNode := make(chan Block)
-		logger.nodes[i] = Node{i, initBlock, logToNode}
+		logger.nodes[i] = &Node{i, initBlock, logToNode}
 	}
 }
 
 func runRounds(rounds int) {
 	for i := 0; i < rounds; i++ {
+		v := logger.nodes[0].current
+		print(v.name)
 		protocol()
 	}
 }
 
 func main() {
 	runRounds(3)
+	a := Block{}
+	b := logger.lastValid
+	for {
+		print(b.name)
+		b = *b.prev
+		if b == a {
+			break
+		}
+	}
+
 }

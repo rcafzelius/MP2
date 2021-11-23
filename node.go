@@ -36,12 +36,13 @@ L:
 			nodeToLog <- newBlock
 		}
 	}
-	println("found")
+	//println("found")
 }
 
 func (n *Node) listen() {
 	//while loop listens to channel
 	//update current block in struct
+	println(n.current.name)
 L:
 	for {
 		select {
@@ -53,5 +54,5 @@ L:
 		default:
 		}
 	}
-	println("heard")
+	//println("heard")
 }
