@@ -75,6 +75,13 @@ func init() {
 	}
 }
 
+func runRounds(rounds int) {
+	for i := 0; i < rounds; i++ {
+		protocol()
+	}
+}
+
 func main() {
-	protocol()
+	//protocol()
+	runRounds(3)
 }
